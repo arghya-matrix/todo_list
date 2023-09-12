@@ -11,6 +11,8 @@ server.use((req,res,next)=>{
     next();
 });
 server.use(express.json());
+server.use(express.urlencoded());
+
 server.use("/user",userRouter);
 server.use("/todo",todoRouter);
 
