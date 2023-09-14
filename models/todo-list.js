@@ -28,7 +28,7 @@ const Todo = sequelize.define(
             defaultValue: `Not done`
         },
         todo_date:{
-            type:DataTypes.DATE,
+            type:DataTypes.DATEONLY,
             allowNull:false
         },
     },{

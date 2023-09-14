@@ -20,7 +20,6 @@ async function userProfile(req, res, next) {
           return;
         } else {
           req.userdata = authData;
-          // console.log(req.userdata);
           next();
         }
       });

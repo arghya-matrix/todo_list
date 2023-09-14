@@ -16,7 +16,8 @@ const Log = sequelize.define('Log',{
     log_details:{
         type: DataTypes.STRING,
         allowNull: false
-    }
+    },
+    createdAt: DataTypes.DATEONLY,
 },{
     updatedAt:false,
     id:false

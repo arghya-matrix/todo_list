@@ -2,6 +2,7 @@ const sequelize = require('../db/database');
 const User = require('./user')
 const Todo =require('./todo-list');
 const Log = require('./log');
+const Post = require('./post')
 
 User.hasMany(Todo,{
     foreignKey: "user_id",
@@ -10,7 +11,16 @@ User.hasMany(Todo,{
 })
 Todo.belongsTo(User,{
     foreignKey: "user_id"
+});
+
+User.hasMany(Post,{
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
 })
+Post.belongsTo(User,{
+    foreignKey: "user_id"
+});
 
 Todo.hasMany(Log,{
     foreignKey: "todo_id",
@@ -21,7 +31,7 @@ Log.belongsTo(Todo,{
     foreignKey: "todo_id"
 })
 
-sequelize.sync({force: false});
+sequelize.sync({alter: true});
 
 
 
@@ -29,5 +39,6 @@ module.exports = {
     sequelize,
     Todo,
     User,
-    Log
-} 
+    Log,
+    Post
+}

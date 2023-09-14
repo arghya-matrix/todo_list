@@ -1,17 +1,14 @@
 const { Op, where } = require("sequelize");
 const db = require("../models/index");
 
+
 async function todoValidation({ user_id, title, date }) {
   const todo = await db.Todo.findAndCountAll({
     where: {
       [Op.and]: [
         { user_id: user_id },
         { title: title },
-        {
-          todo_date: {
-            [Op.eq]: date,
-          },
-        },
+        { todo_date: { [Op.eq]: date } },
       ],
     },
   });
@@ -31,101 +28,12 @@ async function addTodo({ user_id, title, todo_type, todo_status, todo_date }) {
   return todo;
 }
 
-async function getTodo({ user_id }) {
+async function getTodoByFilter(whereObject) {
   const todo = await db.Todo.findAll({
-    where: {
-      user_id: user_id,
-    },
+    where: whereObject,
     raw: true,
+    order: [[ "title","ASC"]],
   });
-  // console.log(todo);
-
-  return todo;
-}
-
-async function getTodoByType({ user_id, type }) {
-  const todo = await db.Todo.findAll({
-    where: {
-      [Op.and]: [{ todo_type: type }, { user_id: user_id }],
-    },
-    raw: true,
-  });
-  return todo;
-}
-
-async function dateRangeFilter({ startDate, endDate, user_id }) {
-  console.log(startDate, endDate);
-  const todo = await db.Todo.findAll({
-    where: {
-      [Op.and]: [
-        {
-          todo_date: { [Op.gte]: startDate, [Op.lte]: endDate },
-        },
-        {user_id : user_id,}
-      ],
-    },
-  });
-
-  return todo;
-}
-
-async function getTodoByDateStatus({ todo_date, user_id, todo_status}){
-  const todo = await db.Todo.findAll({
-    where : {
-      todo_date: todo_date,
-      user_id : user_id,
-      todo_status : todo_status
-    }
-  })
-  return todo;
-}
-
-async function getTodoByTypeDate({ todo_date, user_id, todo_type }){
-  const todo = await db.Todo.findAll({
-    where :{
-      todo_date: todo_date,
-      user_id : user_id,
-      todo_type : todo_type
-    }
-  })
-  return todo;
-}
-
-async function getTodoByTypeStatus({ todo_type, todo_status, user_id }){
-  const todo = await db.Todo.findAll({
-    where : {
-      todo_type : todo_type,
-      todo_status : todo_status,
-      user_id: user_id
-    }
-  })
-  return todo;
-}
-
-async function getTodoByStatusTypeDate({ type, status, date }) {
-  console.log(type, status, date);
-  const todo = await db.Todo.findAll({
-    where: {
-      [Op.and]: [
-        { todo_type: type },
-        { todo_status: status },
-        { todo_date: { [Op.eq]: date } }, // Compare dates for equality
-      ],
-    },
-  });
-  // console.log(todo);
-  return todo;
-}
-
-async function getTodoByStats({ user_id, status }) {
-  const todo = await db.Todo.findAll({
-    where: {
-      [Op.and]: [{ todo_status: status }, { user_id: user_id }],
-    },
-    raw: true,
-  });
-  console.log(todo);
-
   return todo;
 }
 
@@ -209,6 +117,7 @@ async function updateStatus({ user_id, title, status }) {
       log_details: todo[0].todo_status,
       todo_id: todo[0].todo_id,
     });
+    
   }
   return todo;
 }
@@ -273,20 +182,13 @@ async function changeExpiry({ date }) {
 
 module.exports = {
   addTodo,
-  getTodo,
-  getTodoByType,
   deleteTodo,
   updateTodoType,
   updateTodoDate,
   updateTodoTitle,
-  getTodoByStats,
   updateStatus,
   checkExpiry,
   changeExpiry,
-  getTodoByStatusTypeDate,
-  dateRangeFilter,
   todoValidation,
-  getTodoByDateStatus,
-  getTodoByTypeDate,
-  getTodoByTypeStatus
+  getTodoByFilter,
 };
