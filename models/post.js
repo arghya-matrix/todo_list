@@ -22,9 +22,9 @@ const Post = sequelize.define('Post',{
         allowNull: false
     },
     publish:{
-        type: DataTypes.UUID,
+        type: DataTypes.BOOLEAN,
         allowNull: true,
-        defaultValue: null
+        defaultValue: false
     },
     images:{
         type: DataTypes.STRING,

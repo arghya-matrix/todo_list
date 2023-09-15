@@ -30,7 +30,7 @@ async function postImage(req, res, next) {
         // console.log(req.file);
         req.url = `http://localhost:3300/post_image/${req.file.filename}`;
         req.path = req.file.path
-        console.log(req.path);
+        // console.log(req.path);
         next();
     }); 
 }
