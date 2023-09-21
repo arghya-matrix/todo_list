@@ -31,6 +31,10 @@ const Todo = sequelize.define(
             type:DataTypes.DATEONLY,
             allowNull:false
         },
+        event_images : {
+            type:DataTypes.STRING,
+            allowNull: true
+        }
     },{
         updatedAt:false,
         id:false

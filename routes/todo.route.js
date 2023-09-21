@@ -12,7 +12,7 @@ router.post(
   [userMiddleware.userProfile, todoMiddleware.todoMiddleware],
   todoController.addTodo
 );
-router.post(
+router.put(
     "/updatetodo",userMiddleware.userProfile,uploadImageMiddleware.uploadImage,todoController.updateTodo
 );
 

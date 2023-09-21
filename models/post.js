@@ -30,9 +30,9 @@ const Post = sequelize.define('Post',{
         type: DataTypes.STRING,
         allowNull:true
     },
+    updatedAt: DataTypes.DATEONLY,
     createdAt:DataTypes.DATEONLY
 },{
-    updatedAt: false,
     id: false
 })
 

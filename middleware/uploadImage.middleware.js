@@ -20,7 +20,8 @@ const upload = multer({
   limits: { fileSize: 1000000000000 },
 }).single("Eventimages");
 
-async function uploadImage(req, res, next) {
+
+async function uploadImage(req, res, next) { 
   upload(req, res, async function (err) {
 
     if (err) {
@@ -32,8 +33,8 @@ async function uploadImage(req, res, next) {
     const todo = await db.Todo.findAll({
       where: {
         [Op.and]: [
-          { user_id: req.userdata.user_id },
-          { title: req.body.title },
+          { user_id: req.userdata.user_id }, 
+          { todo_id: req.body.todo_id },
         ],
       },
       raw: true,
@@ -44,9 +45,12 @@ async function uploadImage(req, res, next) {
     if (req.body.status == "Done" && type == "Event") {
       req.url = `http://localhost:3300/upload/${req.file.filename}`;
       next();
-    } else {
+    } else if(req.file) {
       fs.unlinkSync(req.file.path);
       next();
+    }
+    else{ 
+    next();
     }
   });
 }

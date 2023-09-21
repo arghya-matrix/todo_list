@@ -2,29 +2,25 @@ const { Op } = require('sequelize');
 const db = require('../models/index');
 
 
-async function getPublishPost({pageSize,index, orderOptions}) {
+async function getPublishPost({ pageSize, index, orderOptions }) {
     const post = await db.Post.findAndCountAll({
         where: {
             publish: {
                 [Op.eq]: true
             }
-        },order: orderOptions,
+        }, order: orderOptions,
         limit: pageSize,
         offset: index
     })
     return post;
 }
 
-async function getMyPrivatePosts({user_id, pageSize, index }){
+async function getMyPosts({ whereObject, pageSize, index, orderOptions }) {
     const post = await db.Post.findAndCountAll({
-        where:{
-            user_id:user_id,
-            publish: {
-                [Op.eq]: false
-            }
-        },
+        where: whereObject,
+        order: orderOptions,
         limit: pageSize,
-        offset : index
+        offset: index
     })
     return post;
 }
@@ -49,105 +45,108 @@ async function createPost({ user_id, imagePath, title, description }) {
     return post;
 }
 
-async function publish({ user_id, title }) {
-   
+async function publish({ user_id, post_id }) {
+
     await db.Post.update({ publish: true }, {
         where: {
             user_id: user_id,
-            post_title: title
+            post_id: post_id
         }
     })
     const post = await db.Post.findAll({
         where: {
             user_id: user_id,
-            post_title: title
+            post_id: post_id
         },
         raw: true
     })
     return post;
 }
 
-async function private({ user_id, title }) {
-    const [ numUpdatedRows, updatedRows ] = await db.Post.update({ publish: false }, {
+async function private({ user_id, post_id }) {
+    const [numUpdatedRows, updatedRows] = await db.Post.update({ publish: false }, {
         where: {
-            [Op.and]: [{ post_title: title },
+            [Op.and]: [{ post_id: post_id },
             { user_id: user_id },
             { publish: { [Op.ne]: false } }]
         },
-        
     })
-    // console.log( numUpdatedRows, updatedRows );
+
     const post = await db.Post.findAll({
-        where:{
-            post_title : title,
+        where: {
+            post_id: post_id,
             user_id: user_id
-        },raw: true
-    })
-    return  {numUpdatedRows, post} ;
-}
-/////////////////////////////////////////////////update////////////////////////////////////////////////////////////
-async function updateTitle({ user_id, newTitle, oldTitle }) {
-    await db.Post.update({ post_title: newTitle }, {
-        where: {
-            user_id: user_id,
-            post_title: oldTitle
-        }
-    })
-    const post = await db.Post.findAll({
-        where: {
-            user_id: user_id,
-            post_title: newTitle
         },
         raw: true
     })
-    return post
+    return { numUpdatedRows, post };
 }
+/////////////////////////////////////////////////update//////////////////////////////////////////////////////////
 
-async function updateImage({ user_id, url, title }) {
-    await db.Post.update({ images: url }, {
-        where: {
-            user_id: user_id,
-            post_title: title
-        }
+async function updatePost({ updateOptions, whereOptions }) {
+    const [numUpdatedRows,updatedRows]= await db.Post.update(updateOptions, {
+        where: whereOptions
     })
-}
-
-async function updateDescription({ user_id, title, description }) {
-    await db.Post.update({ description: description }, {
-        where: {
-            user_id: user_id,
-            post_title: title
-        }
-    })
+    console.log(whereOptions, " Where Clause passed from controller");
     const post = await db.Post.findAll({
-        where: {
-            user_id: user_id,
-            post_title: title
-        },
+        where: whereOptions,
         raw: true
     })
-    return post
+    // console.log(numUpdatedRows,post, " <<<----return values")
+    return {numUpdatedRows,post};
 }
 
-async function deletePost({user_id, title}){
+// async function updateImage({ user_id, url, post_id }) {
+//     await db.Post.update({ images: url }, {
+//         where: {
+//             user_id: user_id,
+//             post_id: post_id
+//         }
+//     })
+//     const post = await db.Post.findAll({
+//         where: {
+//             post_id: post_id,
+//             user_id: user_id
+//         },
+//         raw: true
+//     })
+//     return  post;
+// }
+
+// async function updateDescription({ user_id, title, description }) {
+//     await db.Post.update({ description: description }, {
+//         where: {
+//             user_id: user_id,
+//             post_title: title
+//         }
+//     })
+//     const post = await db.Post.findAll({
+//         where: {
+//             user_id: user_id,
+//             post_title: title
+//         },
+//         raw: true
+//     })
+//     return post
+// }
+
+async function deletePost({ user_id, title }) {
     const post = await db.Post.destroy({
-        where:{
+        where: {
             user_id: user_id,
             post_title: title
         }
     })
-        return post;
+    return post;
 }
 
 module.exports = {
     createPost,
     publish,
     private,
-    updateTitle,
-    updateDescription,
+    updatePost,
     getPublishPost,
     validatePost,
-    updateImage,
     deletePost,
-    getMyPrivatePosts
+    getMyPosts
 }

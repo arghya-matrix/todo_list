@@ -3,6 +3,8 @@ const User = require('./user')
 const Todo =require('./todo-list');
 const Log = require('./log');
 const Post = require('./post')
+const Sessions = require('./sessions');
+
 
 User.hasMany(Todo,{
     foreignKey: "user_id",
@@ -40,5 +42,6 @@ module.exports = {
     Todo,
     User,
     Log,
-    Post
+    Post,
+    Sessions
 }

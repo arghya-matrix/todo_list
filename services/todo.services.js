@@ -46,81 +46,76 @@ async function deleteTodo({ user_id, title }) {
   return `${title} todo deleted`;
 }
 
-async function updateTodoType({ user_id, title, type }) {
-  await db.Todo.update(
-    { todo_date: type },
+// async function updateTodoType({ user_id, title, type }) {
+//   await db.Todo.update(
+//     { todo_date: type },
+//     {
+//       where: {
+//         [Op.and]: [{ title: title }, { user_id: user_id }],
+//       },
+//     }
+//   );
+//   const todo = await db.Todo.findAll({
+//     where: {
+//       [Op.and]: [{ title: title }, { user_id: user_id }],
+//     },
+//   });
+//   return todo;
+// }
+
+async function updateTodo({ updateOptions, whereOptions }) {
+  await db.Todo.update(updateOptions,
     {
-      where: {
-        [Op.and]: [{ title: title }, { user_id: user_id }],
-      },
+      where: whereOptions
     }
   );
   const todo = await db.Todo.findAll({
-    where: {
-      [Op.and]: [{ title: title }, { user_id: user_id }],
-    },
+    where: whereOptions
   });
   return todo;
 }
 
-async function updateTodoTitle({ user_id, newTitle, oldTitle }) {
-  await db.Todo.update(
-    { title: newTitle },
-    {
-      where: {
-        [Op.and]: [{ title: oldTitle }, { user_id: user_id }],
-      },
-    }
-  );
-  const todo = await db.Todo.findAll({
-    where: {
-      [Op.and]: [{ title: newTitle }, { user_id: user_id }],
-    },
-  });
-  return todo;
-}
+// async function updateTodoDate({ user_id, title, date }) {
+//   await db.Todo.update(
+//     { todo_date: date },
+//     {
+//       where: {
+//         [Op.and]: [{ title: title }, { user_id: user_id }],
+//       },
+//     }
+//   );
+//   const todo = await db.Todo.findAll({
+//     where: {
+//       [Op.and]: [{ title: title }, { user_id: user_id }],
+//     },
+//   });
+//   return todo;
+// }
 
-async function updateTodoDate({ user_id, title, date }) {
-  await db.Todo.update(
-    { todo_date: date },
-    {
-      where: {
-        [Op.and]: [{ title: title }, { user_id: user_id }],
-      },
-    }
-  );
-  const todo = await db.Todo.findAll({
-    where: {
-      [Op.and]: [{ title: title }, { user_id: user_id }],
-    },
-  });
-  return todo;
-}
-
-async function updateStatus({ user_id, title, status }) {
-  await db.Todo.update(
-    { todo_status: status },
-    {
-      where: {
-        [Op.and]: [{ title: title }, { user_id: user_id }],
-      },
-    }
-  );
-  const todo = await db.Todo.findAll({
-    where: {
-      [Op.and]: [{ title: title }, { user_id: user_id }],
-    },
-    raw: true,
-  });
-  if (status == "Done") {
-    const log = await db.Log.create({
-      log_details: todo[0].todo_status,
-      todo_id: todo[0].todo_id,
-    });
+// async function updateStatus({ user_id, title, status }) {
+//   await db.Todo.update(
+//     { todo_status: status },
+//     {
+//       where: {
+//         [Op.and]: [{ title: title }, { user_id: user_id }],
+//       },
+//     }
+//   );
+//   const todo = await db.Todo.findAll({
+//     where: {
+//       [Op.and]: [{ title: title }, { user_id: user_id }],
+//     },
+//     raw: true,
+//   });
+//   if (status == "Done") {
+//     const log = await db.Log.create({
+//       log_details: todo[0].todo_status,
+//       todo_id: todo[0].todo_id,
+//     });
     
-  }
-  return todo;
-}
+//   }
+//   return todo;
+// }
 
 async function checkExpiry({ date }) {
   const status = "Not done";
@@ -183,10 +178,7 @@ async function changeExpiry({ date }) {
 module.exports = {
   addTodo,
   deleteTodo,
-  updateTodoType,
-  updateTodoDate,
-  updateTodoTitle,
-  updateStatus,
+  updateTodo,
   checkExpiry,
   changeExpiry,
   todoValidation,

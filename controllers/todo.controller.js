@@ -45,7 +45,7 @@ async function getTodo(req, res) {
   if (req.query.date) {
     const parsedDate = moment(req.query.date).format("YYYY-MM-DD");
     // const date = new Date(parsedDate);
-    
+
     whereObject.todo_date = parsedDate
   }
 
@@ -54,7 +54,7 @@ async function getTodo(req, res) {
     const startDate = moment(req.query.startDate).format("YYYY-MM-DD");
 
     const endDate = moment(req.query.endDate).format("YYYY-MM-DD");
-       
+
     whereObject.todo_date = {
       [Op.between]: [startDate, endDate],
     };
@@ -69,7 +69,6 @@ async function getTodo(req, res) {
 
   // Find todo by date & type
   if (req.query.type) {
-
     whereObject.todo_type = req.query.type
   }
 
@@ -80,90 +79,78 @@ async function getTodo(req, res) {
   })
 }
 
-  async function updateTodo(req, res) {
-    const data = req.userdata;
-    const body = req.body;
-    const type = body.type;
-    const status = body.status;
-    const updateTitle = body.title;
-    const date = moment(req.body.date, "DD-MM-YYYY").toDate();
+async function updateTodo(req, res) {
+  const data = req.userdata;
+  const body = req.body;
+  const type = body.type;
+  const status = body.status;
+  const updateTitle = body.title;
+  const todo_id = body.todo_id
+  const date = moment(req.body.date).format("YYYY-MM-DD");
 
-    const currentDate = new Date();
+  const currentDate = moment().format("YYYY-MM-DD");
+  const updateOptions = {};
+  const whereOptions = {};
 
-    if (data && type) {
-      const todo = await todoServices.updateTodoType({
-        title: body.title,
-        type: type,
-        user_id: data.user_id,
-      });
-      res.json({
-        message: `${body.title} todo type updated to ${body.type}`,
-        updated_todo: todo,
-      });
-    }
-
-    if (data && status) {
-      const todo = await todoServices.updateStatus({
-        status: status,
-        title: body.title,
-        user_id: data.user_id,
-      });
-      if(req.url){
-        res.json({
-          message: todo,
-          "Event Images" : `${req.url}`
-        });
-      }
-      else{
-        res.json({
-          message: todo,
-        });
-      }
-    }
-    // console.log(date);
-
-    if (data && date && date > currentDate) {
-      const todo = await todoServices.updateTodoDate({
-        date: date,
-        title: body.title,
-        user_id: data.user_id,
-      });
-      res.json({
-        message: todo,
-      });
-    } else if (date < currentDate) {
-      res.json({
-        message: `Cannot add time in past`,
-      });
-    }
-
-    if (data && updateTitle && !type && !date && !status) {
-      const todo = await todoServices.updateTodoTitle({
-        newTitle: body.new_title,
-        oldTitle: body.old_title,
-        user_id: data.user_id,
-      });
-      res.json({
-        message: todo,
-      });
-    }
+  if (data && type) {
+    updateOptions.todo_type = type
   }
 
-  async function deleteTodo(req, res) {
-    const data = req.userdata;
-    const title = req.body.title;
-    const todo = await todoServices.deleteTodo({
-      title: title,
-      user_id: data.user_id,
+  if (data && status) {
+    updateOptions.todo_status = status
+  }
+
+  if(req.url){
+    updateOptions.event_images = req.url
+  }
+
+  if (data && date && date > currentDate) {
+    updateOptions.todo_date = date
+  } else if (date < currentDate) {
+    return res.status(403).json({
+      message: `Cannot add time in past`,
     });
+  }
+
+  if (data && updateTitle && !type && !date && !status) {
+    updateOptions.post_title = updateTitle
+  }
+
+  whereOptions.todo_id = todo_id
+
+  console.log(updateOptions, whereOptions, "<-----Options for update");
+  const todo = await todoServices.updateTodo({
+    updateOptions: updateOptions,
+    whereOptions: whereOptions
+  });
+  if (req.url != null || req.url != undefined) {
+    res.json({
+      message: todo,
+    });
+  }
+  else {
     res.json({
       message: todo,
     });
   }
 
-  module.exports = {
-    addTodo,
-    getTodo,
-    updateTodo,
-    deleteTodo,
-  };
+}
+
+async function deleteTodo(req, res) {
+  const data = req.userdata;
+  const title = req.body.title;
+  const todo = await todoServices.deleteTodo({
+    title: title,
+    user_id: data.user_id,
+  });
+  res.json({
+    message: todo,
+  });
+}
+
+module.exports = {
+  addTodo,
+  getTodo,
+  updateTodo,
+  deleteTodo,
+};
